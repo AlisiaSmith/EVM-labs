@@ -2,26 +2,26 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#include<time.h>
 #include<math.h>
+#include<windows.h>
 
-double foo(unsigned int x)
-{
-	if (x == 0) return 1;
-	return pow(-1, x) / (2 * x + 1) + foo(x - 1);
-}
 
 int main(void)
 {
-	unsigned int N = 3500;
-	double Pi = 0;
-	time_t start, end;
-	time(&start);
-	Pi = foo(N);
+	unsigned int N = //1000;
+					1200000000; // 15 // 22,8
+					//1500000000; // 18
+	long double Pi = 0;
+	long double start, end;
+	
+	start = GetTickCount(); // имеет погрешность в 10 мс
+	for (int i = 0; i <= N; i++)
+		Pi = Pi + pow(-1, i) / (2 * i + 1);
 	Pi = Pi * 4;
-	time(&end);
-	printf("%lf \n", Pi);
-	printf("Time taken: %lf sec.\n", difftime(end, start));	return 0;
+	end = GetTickCount();
 
-	//GetSystemTime();
+	printf("pi = %lf \n", Pi);
+	printf("Time of work: %lf sec.\n", (end - start) / 1000);	
+	return 0;
+
 }
