@@ -3,8 +3,10 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<math.h>
-#include<windows.h>
 
+#ifdef __WINDOWS__
+#include<windows.h>
+#endif
 
 int main(void)
 {
@@ -15,7 +17,7 @@ int main(void)
 	long double start, end;
 	
 	start = GetTickCount(); // имеет погрешность в 10 мс
-	for (int i = 0; i <= N; i++)
+	for (unsigned int i = 0; i <= N; i++)
 		Pi = Pi + pow(-1, i) / (2 * i + 1);
 	Pi = Pi * 4;
 	end = GetTickCount();
