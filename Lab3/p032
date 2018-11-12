@@ -1,0 +1,114 @@
+	.file	"source.c" 												; Исходный фаил до компиляции
+ 	.text																		;
+	.section	.rodata												;
+.LC3:																			;
+	.string	"%Lf \n"												;
+	.text																		;
+	.globl	main														; main - глобальный и виден за пределами текущего файла
+	.type	main, @function										; main - это функция
+main:																			;
+.LFB5:																		;
+	.cfi_startproc													;
+	leal	4(%esp), %ecx											;
+	.cfi_def_cfa 1, 0												;
+	andl	$-16, %esp												;
+	pushl	-4(%ecx)													; поместить значение в стек
+	pushl	%ebp															;	поместить указатель базы кадра стека в стек
+	.cfi_escape 0x10,0x5,0x2,0x75,0					;
+	movl	%esp, %ebp												; присвоить указатель стека указателю базы кадра стека ?
+	pushl	%ebx															; поместить адрес на объект в стек // Сохраняем указатель кадра вызвавшей программы
+	pushl	%ecx															; поместить счетчик в стек
+	.cfi_escape 0xf,0x3,0x75,0x78,0x6				;
+	.cfi_escape 0x10,0x3,0x2,0x75,0x7c			;
+	subl	$48, %esp													; Вычесть из esp значение 48
+	call	__x86.get_pc_thunk.bx							; вызов подпрограммы
+	addl	$_GLOBAL_OFFSET_TABLE_, %ebx			; сложение
+	movl	%ecx, %eax												; присвоение
+	movl	4(%eax), %eax											; положить в регистр eax знвчение 4*eax
+	addl	$4, %eax													; сложение
+	movl	(%eax), %eax											; присвоение
+	subl	$12, %esp													;	Вычесть из esp значение 12
+	pushl	%eax															; поместить значение в стек
+	call	atoi@PLT													; вызов подпрограммы atoi
+	addl	$16, %esp													;
+	movl	%eax, -24(%ebp)										;
+	fldz																		; загрузить число +0.0
+	fstpt	-20(%ebp)													;
+	movl	$0, -28(%ebp)											;
+	jmp	.L2																	;
+.L5:																			;
+	movl	-28(%ebp), %eax										;
+	andl	$1, %eax													;
+	testl	%eax, %eax												;
+	jne	.L3																	;
+	movl	$1, -32(%ebp)											;
+	jmp	.L4																	;
+.L3:																			;
+	movl	$-1, -32(%ebp)										;
+.L4:																			;
+	fildl	-32(%ebp)													;
+	movl	-28(%ebp), %eax										;
+	movl	$0, %edx													;
+	movl	%eax, -56(%ebp)										;
+	movl	%edx, -52(%ebp)										;
+	fildq	-56(%ebp)													;
+	fstps	-44(%ebp)													;
+	flds	-44(%ebp)													;
+	fld	%st(0)															;
+	faddp	%st, %st(1)												;
+	fld1																		;
+	faddp	%st, %st(1)												;
+	fdivrp	%st, %st(1)											;
+	fldt	-20(%ebp)													;
+	faddp	%st, %st(1)												;
+	fstpt	-20(%ebp)													;
+	addl	$1, -28(%ebp)											;
+.L2:																			;
+	movl	-28(%ebp), %eax										;
+	cmpl	-24(%ebp), %eax										;
+	jbe	.L5																	;
+	fldt	-20(%ebp)													;
+	fldt	.LC2@GOTOFF(%ebx)									;
+	fmulp	%st, %st(1)												;
+	fstpt	-20(%ebp)													;
+	pushl	-12(%ebp)													;
+	pushl	-16(%ebp)													;
+	pushl	-20(%ebp)													;
+	leal	.LC3@GOTOFF(%ebx), %eax						;
+	pushl	%eax															;
+	call	printf@PLT												;
+	addl	$16, %esp													;
+	movl	$0, %eax													;
+	leal	-8(%ebp), %esp										;
+	popl	%ecx															;
+	.cfi_restore 1													;
+	.cfi_def_cfa 1, 0												;
+	popl	%ebx															;
+	.cfi_restore 3													;
+	popl	%ebp															;
+	.cfi_restore 5													;
+	leal	-4(%ecx), %esp										;
+	.cfi_def_cfa 4, 4												;
+	ret																			;
+	.cfi_endproc														;
+.LFE5:																		;
+	.size	main, .-main											;
+	.section	.rodata												;
+	.align 16																;
+.LC2:																			;
+	.long	0																	;
+	.long	2147483648												;
+	.long	16385															;
+	.section	.text.__x86.get_pc_thunk.bx,"axG",@progbits,__x86.get_pc_thunk.bx,comdat
+	.globl	__x86.get_pc_thunk.bx						;
+	.hidden	__x86.get_pc_thunk.bx						;
+	.type	__x86.get_pc_thunk.bx, @function	;
+__x86.get_pc_thunk.bx:										;
+.LFB6:																		;
+	.cfi_startproc													;
+	movl	(%esp), %ebx											;
+	ret																			;
+	.cfi_endproc														;
+.LFE6:																		;
+	.ident	"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0"
+	.section	.note.GNU-stack,"",@progbits	;

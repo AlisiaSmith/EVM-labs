@@ -1,0 +1,98 @@
+	.file	"source.c"
+	.text
+	.section	.rodata
+.LC3:
+	.string	"%Lf \n"
+	.text
+	.globl	main
+	.type	main, @function
+main:
+.LFB5:
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$64, %rsp
+	movl	%edi, -36(%rbp)
+	movq	%rsi, -48(%rbp)
+	movq	-48(%rbp), %rax
+	addq	$8, %rax
+	movq	(%rax), %rax
+	movq	%rax, %rdi
+	call	atoi@PLT
+	movl	%eax, -20(%rbp)
+	fldz
+	fstpt	-16(%rbp)
+	movl	$0, -24(%rbp)
+	jmp	.L2
+.L7:
+	movl	-24(%rbp), %eax
+	andl	$1, %eax
+	testl	%eax, %eax
+	jne	.L3
+	movl	$1, -28(%rbp)
+	jmp	.L4
+.L3:
+	movl	$-1, -28(%rbp)
+.L4:
+	cvtsi2sd	-28(%rbp), %xmm1
+	movl	-24(%rbp), %eax
+	testq	%rax, %rax
+	js	.L5
+	cvtsi2ssq	%rax, %xmm0
+	jmp	.L6
+.L5:
+	movq	%rax, %rdx
+	shrq	%rdx
+	andl	$1, %eax
+	orq	%rax, %rdx
+	cvtsi2ssq	%rdx, %xmm0
+	addss	%xmm0, %xmm0
+.L6:
+	cvtss2sd	%xmm0, %xmm0
+	addsd	%xmm0, %xmm0
+	movsd	.LC1(%rip), %xmm2
+	addsd	%xmm2, %xmm0
+	divsd	%xmm0, %xmm1
+	movsd	%xmm1, -56(%rbp)
+	fldl	-56(%rbp)
+	fldt	-16(%rbp)
+	faddp	%st, %st(1)
+	fstpt	-16(%rbp)
+	addl	$1, -24(%rbp)
+.L2:
+	movl	-24(%rbp), %eax
+	cmpl	-20(%rbp), %eax
+	jbe	.L7
+	fldt	-16(%rbp)
+	fldt	.LC2(%rip)
+	fmulp	%st, %st(1)
+	fstpt	-16(%rbp)
+	pushq	-8(%rbp)
+	pushq	-16(%rbp)
+	leaq	.LC3(%rip), %rdi
+	movl	$0, %eax
+	call	printf@PLT
+	addq	$16, %rsp
+	movl	$0, %eax
+	leave
+	.cfi_def_cfa 7, 8
+	ret
+	.cfi_endproc
+.LFE5:
+	.size	main, .-main
+	.section	.rodata
+	.align 8
+.LC1:
+	.long	0
+	.long	1072693248
+	.align 16
+.LC2:
+	.long	0
+	.long	2147483648
+	.long	16385
+	.long	0
+	.ident	"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0"
+	.section	.note.GNU-stack,"",@progbits
