@@ -1,114 +1,120 @@
 	.file	"source.c" 												; Исходный фаил до компиляции
- 	.text																		;
-	.section	.rodata												;
-.LC3:																			;
-	.string	"%Lf \n"												;
-	.text																		;
+ 	.text
+	.section	.rodata
+.LC3:
+	.string	"%Lf \n"
+	.text
 	.globl	main														; main - глобальный и виден за пределами текущего файла
 	.type	main, @function										; main - это функция
-main:																			;
-.LFB5:																		;
-	.cfi_startproc													;
-	leal	4(%esp), %ecx											;
-	.cfi_def_cfa 1, 0												;
-	andl	$-16, %esp												;
-	pushl	-4(%ecx)													; поместить значение в стек
-	pushl	%ebp															;	поместить указатель базы кадра стека в стек
-	.cfi_escape 0x10,0x5,0x2,0x75,0					;
-	movl	%esp, %ebp												; присвоить указатель стека указателю базы кадра стека ?
-	pushl	%ebx															; поместить адрес на объект в стек // Сохраняем указатель кадра вызвавшей программы
-	pushl	%ecx															; поместить счетчик в стек
-	.cfi_escape 0xf,0x3,0x75,0x78,0x6				;
-	.cfi_escape 0x10,0x3,0x2,0x75,0x7c			;
+main:
+.LFB5:
+	.cfi_startproc
+	leal	4(%esp), %ecx											; Перемещает адрес esp + 4 в регистр ecx
+	.cfi_def_cfa 1, 0
+	andl	$-16, %esp												; Вычесть 16 из esp
+	pushl	-4(%ecx)													; Поместить значение из ecx - 4 в стек
+	pushl	%ebp															;	Сохраняем указатель кадра вызвавшей программы (помещаем в стек значение в регистре ebp)
+	.cfi_escape 0x10,0x5,0x2,0x75,0
+	movl	%esp, %ebp												; -ормируем указатель нашего кадра:
+																				 	; Пишем в регистр ebp значение регистра esp
+ 																					; (это будет начало кадра для локальных переменных)
+
+	pushl	%ebx															; Помещаем значение из регистра ebx в стек
+	pushl	%ecx															; Помещаем значение из регистра ecx в стек
+	.cfi_escape 0xf,0x3,0x75,0x78,0x6
+	.cfi_escape 0x10,0x3,0x2,0x75,0x7c
 	subl	$48, %esp													; Вычесть из esp значение 48
-	call	__x86.get_pc_thunk.bx							; вызов подпрограммы
-	addl	$_GLOBAL_OFFSET_TABLE_, %ebx			; сложение
-	movl	%ecx, %eax												; присвоение
-	movl	4(%eax), %eax											; положить в регистр eax знвчение 4*eax
-	addl	$4, %eax													; сложение
-	movl	(%eax), %eax											; присвоение
+	call	__x86.get_pc_thunk.bx							; Вызов подпрограммы
+																					;	если результат целочисленный, он возвращается в eax
+
+	addl	$_GLOBAL_OFFSET_TABLE_, %ebx			; Сложениие ebx с глобальной переменной
+	movl	%ecx, %eax												; Записать значение ecx в eax (присваивание)
+	movl	4(%eax), %eax											; Записать значение из eax + 4 в eax (присваивание)
+	addl	$4, %eax													; К содержимому eax прибавить 4
+	movl	(%eax), %eax											; Записать в регистр eax операнд, который содержится в оперативной памяти по адресу метки eax
 	subl	$12, %esp													;	Вычесть из esp значение 12
-	pushl	%eax															; поместить значение в стек
-	call	atoi@PLT													; вызов подпрограммы atoi
-	addl	$16, %esp													;
-	movl	%eax, -24(%ebp)										;
-	fldz																		; загрузить число +0.0
-	fstpt	-20(%ebp)													;
-	movl	$0, -28(%ebp)											;
-	jmp	.L2																	;
-.L5:																			;
-	movl	-28(%ebp), %eax										;
-	andl	$1, %eax													;
-	testl	%eax, %eax												;
-	jne	.L3																	;
-	movl	$1, -32(%ebp)											;
-	jmp	.L4																	;
-.L3:																			;
-	movl	$-1, -32(%ebp)										;
-.L4:																			;
-	fildl	-32(%ebp)													;
-	movl	-28(%ebp), %eax										;
-	movl	$0, %edx													;
-	movl	%eax, -56(%ebp)										;
-	movl	%edx, -52(%ebp)										;
-	fildq	-56(%ebp)													;
-	fstps	-44(%ebp)													;
-	flds	-44(%ebp)													;
-	fld	%st(0)															;
-	faddp	%st, %st(1)												;
-	fld1																		;
-	faddp	%st, %st(1)												;
-	fdivrp	%st, %st(1)											;
-	fldt	-20(%ebp)													;
-	faddp	%st, %st(1)												;
-	fstpt	-20(%ebp)													;
-	addl	$1, -28(%ebp)											;
-.L2:																			;
-	movl	-28(%ebp), %eax										;
-	cmpl	-24(%ebp), %eax										;
-	jbe	.L5																	;
-	fldt	-20(%ebp)													;
-	fldt	.LC2@GOTOFF(%ebx)									;
-	fmulp	%st, %st(1)												;
-	fstpt	-20(%ebp)													;
-	pushl	-12(%ebp)													;
-	pushl	-16(%ebp)													;
-	pushl	-20(%ebp)													;
-	leal	.LC3@GOTOFF(%ebx), %eax						;
-	pushl	%eax															;
-	call	printf@PLT												;
-	addl	$16, %esp													;
-	movl	$0, %eax													;
-	leal	-8(%ebp), %esp										;
-	popl	%ecx															;
-	.cfi_restore 1													;
-	.cfi_def_cfa 1, 0												;
-	popl	%ebx															;
-	.cfi_restore 3													;
-	popl	%ebp															;
-	.cfi_restore 5													;
-	leal	-4(%ecx), %esp										;
-	.cfi_def_cfa 4, 4												;
-	ret																			;
-	.cfi_endproc														;
-.LFE5:																		;
-	.size	main, .-main											;
-	.section	.rodata												;
-	.align 16																;
-.LC2:																			;
-	.long	0																	;
-	.long	2147483648												;
-	.long	16385															;
+	pushl	%eax															; Поместить eax в стек
+	call	atoi@PLT													; Вызов подпрограммы atoi
+																					; Результат целочисленный, он возвращается в eax
+	addl	$16, %esp													;	Чистим место в стеке (увеличиваем указатель стека)
+	movl	%eax, -24(%ebp)										; Помещаем значение из регистра eax по адресу ebp - 24
+	fldz																		; Загрузить число +0.0 в стек
+	fstpt	-20(%ebp)													; Сохранить ST(0) по адресу ebp - 20, верхний элемент выталкивается из регистрового стека
+	movl	$0, -28(%ebp)											; Присвоить Значению по адресу ebp - 28 нуль (i = 0)
+	jmp	.L2																	; Безусловный переход на .L2
+.L5:
+	movl	-28(%ebp), %eax										; Записать в eax значение из памяти по адресу ebp - 28 (переменная i)
+	andl	$1, %eax													; Сложить eax с 1 (i++)
+	testl	%eax, %eax												;  Логическое И между всеми битами двух операндов (установить соответствующие флаги)
+	jne	.L3																	; Если флаг = 0 - перейти к .L3
+	movl	$1, -32(%ebp)											; Присвоить переменной в памяти 1 (k = 1)
+	jmp	.L4																	; Безусловный переход к .L4
+.L3:
+	movl	$-1, -32(%ebp)										; Присвоить переменной в памяти -1 (k = -1)
+.L4:
+	fildl	-32(%ebp)													; Загрузить целое число, расположенное по адресу ebp - 32 со знаком в стек
+	movl	-28(%ebp), %eax										; Записать в eax значение из памяти (переменная i)
+	movl	$0, %edx													; записать в edx нуль
+	movl	%eax, -56(%ebp)										; Перемещаем значение из регистра eax по адресу ebp - 56
+	movl	%edx, -52(%ebp)										; Перемещаем значение из регистра edx по адресу ebp - 52
+	fildq	-56(%ebp)													; Загрузить целое число, расположенное по адресу ebp - 56 со знаком в стек
+	fstps	-44(%ebp)													; Выталкиваем значение из вершины стека в память по адресу ebp - 44
+	flds	-44(%ebp)													;	Загрузить вещественное число, расположенное по адресу ebp - 44 в стек
+	fld	%st(0)															; Дублирует вершину стека
+	faddp	%st, %st(1)												; Вынимаем две вершины из стека складываем, результат кладем обратно в стек
+	fld1																		; Помещаем в стек единицу
+	faddp	%st, %st(1)												; Вынимаем две вершины из стека складываем, результат кладем обратно в стек
+	fdivrp	%st, %st(1)											; Делим значение из st(1) на значение из st(0) и помещаем в st(0)
+	fldt	-20(%ebp)													; Загрузить вещественное число, расположенное по адресу ebp - 20 в стек
+	faddp	%st, %st(1)												; Вынимаем две вершины из стека складываем, результат кладем обратно в стек
+	fstpt	-20(%ebp)													; Выталкиваем значение из вершины стека в память по адресу ebp - 20
+	addl	$1, -28(%ebp)											; Прибавить 1 к значению по адресу ebp + 28
+.L2:
+	movl	-28(%ebp), %eax										; Переместить значение по адресу ebp + 28 в регистр eax
+	cmpl	-24(%ebp), %eax										; Сравнить значение из памяти с тем, что лежит в eax
+	jbe	.L5																	; Если первый операнд МЕНЬШЕ или РАВЕН второму операнду при выполнении операции CMP, перейти к .L5
+	fldt	-20(%ebp)													; Загрузить вещественное число, расположенное по адресу ebp - 20 в стек
+	fldt	.LC2@GOTOFF(%ebx)									; Загрузить вещественное число, расположенное по адресу в памяти в стек
+	fmulp	%st, %st(1)												; Умножаем: st*st(2) (они при этом выталкиваются из стека). Результат помещаем в вершину стека.
+	fstpt	-20(%ebp)													; Выталкиваем значение из вершины стека в память по адресу ebp - 20
+	pushl	-12(%ebp)													; Положить в стек значение из памяти
+	pushl	-16(%ebp)													; Положить в стек значение из памяти
+	pushl	-20(%ebp)													; Положить в стек значение из памяти
+	leal	.LC3@GOTOFF(%ebx), %eax						; Перемещает адрес в регистр eax
+	pushl	%eax															; Положить в стек значение из регистра eax
+	call	printf@PLT												; вызов подпрограммы printf
+	addl	$16, %esp													; Чистим место в стеке (увеличиваем указатель стека)
+	movl	$0, %eax													; Поместить в eax ноль
+	leal	-8(%ebp), %esp										; Перемещает адрес esp - 8 в регистр esx
+	popl	%ecx															; Взять значение из стека и поместить его в регистр общего назначения ecx
+	.cfi_restore 1
+	.cfi_def_cfa 1, 0
+	popl	%ebx															; Взять значение из стека и поместить его в регистр общего назначения ebx
+	.cfi_restore 3
+	popl	%ebp															; Взять значение из стека и поместить его в регистр общего назначения ebp
+	.cfi_restore 5
+	leal	-4(%ecx), %esp										; Перемещает адрес esp - 4 в регистр esp
+	.cfi_def_cfa 4, 4
+	ret																			; Выход из подпрограммы
+	.cfi_endprocы
+.LFE5:
+	.size	main, .-main
+	.section	.rodata
+	.align 16
+.LC2:
+	.long	0
+	.long	2147483648
+	.long	16385
 	.section	.text.__x86.get_pc_thunk.bx,"axG",@progbits,__x86.get_pc_thunk.bx,comdat
-	.globl	__x86.get_pc_thunk.bx						;
-	.hidden	__x86.get_pc_thunk.bx						;
-	.type	__x86.get_pc_thunk.bx, @function	;
-__x86.get_pc_thunk.bx:										;
-.LFB6:																		;
-	.cfi_startproc													;
-	movl	(%esp), %ebx											;
-	ret																			;
-	.cfi_endproc														;
-.LFE6:																		;
+	.globl	__x86.get_pc_thunk.bx
+	.hidden	__x86.get_pc_thunk.bx
+	.type	__x86.get_pc_thunk.bx, @function
+__x86.get_pc_thunk.bx:
+.LFB6:
+	.cfi_startproc
+	movl	(%esp), %ebx											; переместить esp в регистр ebx
+	ret																			; Выход из подпрограммы
+	.cfi_endproc
+.LFE6:
 	.ident	"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0"
-	.section	.note.GNU-stack,"",@progbits	;
+	.section	.note.GNU-stack,"",@progbits

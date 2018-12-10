@@ -1,0 +1,72 @@
+	.file	"source.c"
+	.text
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.LC3:
+	.string	"%Lf \n"
+	.section	.text.startup,"ax",@progbits
+	.p2align 4,,15
+	.globl	main
+	.type	main, @function
+main:
+.LFB41:
+	.cfi_startproc
+	subq	$24, %rsp
+	.cfi_def_cfa_offset 32
+	movq	8(%rsi), %rdi
+	movl	$10, %edx
+	xorl	%esi, %esi
+	call	strtol@PLT
+	movsd	.LC1(%rip), %xmm2
+	fldz
+	movsd	.LC2(%rip), %xmm3
+	xorl	%ecx, %ecx
+	.p2align 4,,10
+	.p2align 3
+.L5:
+	testb	$1, %cl
+	movapd	%xmm3, %xmm1
+	jne	.L2
+	movapd	%xmm2, %xmm1
+.L2:
+	pxor	%xmm0, %xmm0
+	movl	%ecx, %edx
+	addl	$1, %ecx
+	cmpl	%ecx, %eax
+	cvtsi2ssq	%rdx, %xmm0
+	cvtss2sd	%xmm0, %xmm0
+	addsd	%xmm0, %xmm0
+	addsd	%xmm2, %xmm0
+	divsd	%xmm0, %xmm1
+	movsd	%xmm1, 8(%rsp)
+	faddl	8(%rsp)
+	jnb	.L5
+	fmuls	.LC4(%rip)
+	leaq	.LC3(%rip), %rsi
+	subq	$16, %rsp
+	.cfi_def_cfa_offset 48
+	movl	$1, %edi
+	xorl	%eax, %eax
+	fstpt	(%rsp)
+	call	__printf_chk@PLT
+	xorl	%eax, %eax
+	addq	$40, %rsp
+	.cfi_def_cfa_offset 8
+	ret
+	.cfi_endproc
+.LFE41:
+	.size	main, .-main
+	.section	.rodata.cst8,"aM",@progbits,8
+	.align 8
+.LC1:
+	.long	0
+	.long	1072693248
+	.align 8
+.LC2:
+	.long	0
+	.long	-1074790400
+	.section	.rodata.cst4,"aM",@progbits,4
+	.align 4
+.LC4:
+	.long	1082130432
+	.ident	"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0"
+	.section	.note.GNU-stack,"",@progbits

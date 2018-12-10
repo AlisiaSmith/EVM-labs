@@ -9,77 +9,77 @@
 main:
 .LFB5:
 	.cfi_startproc
-	pushq	%rbp
+	pushq	%rbp											; Поместить в стек содержимое регистра rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
-	movq	%rsp, %rbp
+	movq	%rsp, %rbp								; Перемещаем содержимое регистра rsp в регистр rbp
 	.cfi_def_cfa_register 6
-	subq	$64, %rsp
-	movl	%edi, -36(%rbp)
-	movq	%rsi, -48(%rbp)
-	movq	-48(%rbp), %rax
-	addq	$8, %rax
-	movq	(%rax), %rax
-	movq	%rax, %rdi
-	call	atoi@PLT
-	movl	%eax, -20(%rbp)
-	fldz
-	fstpt	-16(%rbp)
-	movl	$0, -24(%rbp)
-	jmp	.L2
+	subq	$64, %rsp									; Вычесть 64 из rsp
+	movl	%edi, -36(%rbp)						; Переместить содежржимое регистра edi по адресу rbp - 36
+	movq	%rsi, -48(%rbp)						; Переместить содежржимое регистра rsi по адресу rbp - 48
+	movq	-48(%rbp), %rax						; Переместить содежржимое по адресу rbp - 48 в регистр rax
+	addq	$8, %rax									; Добавит к значению регистра rax 8
+	movq	(%rax), %rax							; Записать в регистр rax операнд, который содержится в оперативной памяти по адресу метки rax
+	movq	%rax, %rdi								; Переместить значение из  регистра rax в регистр rdi
+	call	atoi@PLT									; Вызов подпрограммы atoi
+	movl	%eax, -20(%rbp)						; Переместить значение регистра eax по адресу rbp - 20
+	fldz														; Загрузить в стек 0
+	fstpt	-16(%rbp)									; Вынуть значение из стека и разместить по адресу rbp - 16
+	movl	$0, -24(%rbp)							; Присвоить значению по адресу rbp - 24  нуль
+	jmp	.L2													; Перейти к .L2
 .L7:
-	movl	-24(%rbp), %eax
-	andl	$1, %eax
-	testl	%eax, %eax
-	jne	.L3
-	movl	$1, -28(%rbp)
-	jmp	.L4
+	movl	-24(%rbp), %eax						; Переместить содержимое по адресу rbp - 24 в регистр eax
+	andl	$1, %eax									; Прибавить к eax единицу
+	testl	%eax, %eax								; Логическое И между всеми битами двух операндов (устанавливает флаги)
+	jne	.L3													; Еси флаг = 0 перейти к .L3
+	movl	$1, -28(%rbp)							; Присвоить значению по адресу rbp - 28 единицу
+	jmp	.L4													; Перейти к .L4
 .L3:
-	movl	$-1, -28(%rbp)
+	movl	$-1, -28(%rbp)						; Присвоить значению по адресу rbp - 28 минус единицу
 .L4:
-	cvtsi2sd	-28(%rbp), %xmm1
-	movl	-24(%rbp), %eax
-	testq	%rax, %rax
-	js	.L5
-	cvtsi2ssq	%rax, %xmm0
-	jmp	.L6
+	cvtsi2sd	-28(%rbp), %xmm1			; Преобразование скалярного DWord в Double  ????????????????
+	movl	-24(%rbp), %eax						; Переместить значение по адресу rbp -24 в регистр eax
+	testq	%rax, %rax								; Логическое И между всеми битами двух операндов
+	js	.L5													; Если флаг = 1 - перейти к .L5
+	cvtsi2ssq	%rax, %xmm0						; ???
+	jmp	.L6													; Перейти к .L6
 .L5:
-	movq	%rax, %rdx
-	shrq	%rdx
-	andl	$1, %eax
-	orq	%rax, %rdx
-	cvtsi2ssq	%rdx, %xmm0
-	addss	%xmm0, %xmm0
+	movq	%rax, %rdx								; Переместить значение из регистра rax в регистр rdx
+	shrq	%rdx											; Логический сдвиг влево значения в регистре rdx
+	andl	$1, %eax									; Прибавить к значению eax еденицу
+	orq	%rax, %rdx									; ???
+	cvtsi2ssq	%rdx, %xmm0						; ???
+	addss	%xmm0, %xmm0							; Увеличиваем значение в регистре xmm0 в два раза
 .L6:
-	cvtss2sd	%xmm0, %xmm0
-	addsd	%xmm0, %xmm0
-	movsd	.LC1(%rip), %xmm2
-	addsd	%xmm2, %xmm0
-	divsd	%xmm0, %xmm1
-	movsd	%xmm1, -56(%rbp)
-	fldl	-56(%rbp)
-	fldt	-16(%rbp)
-	faddp	%st, %st(1)
-	fstpt	-16(%rbp)
-	addl	$1, -24(%rbp)
+	cvtss2sd	%xmm0, %xmm0					; ???
+	addsd	%xmm0, %xmm0							; Увеличиваем значение в регистре xmm0 в два раза
+	movsd	.LC1(%rip), %xmm2					; Присваиваем значение регистру xmm2
+	addsd	%xmm2, %xmm0							; Прибавить к значению из регистра xmm0 значение, расположенное в регистре xmm1 и сохранить в xmm0
+	divsd	%xmm0, %xmm1							; Делим содержимое регистра xmm0 на значение из xmm1
+	movsd	%xmm1, -56(%rbp)					; Переместить содерживое регистра xmm1 по адресу rbp - 56
+	fldl	-56(%rbp)									; Загрузить целое число, расположенное по адресу rbp - 56 со знаком в стек
+	fldt	-16(%rbp)									; Загрузить вещественное число, расположенное по адресу rbp - 16 в стек
+	faddp	%st, %st(1)								; Вынимаем две вершины из стека складываем, результат кладем обратно в стек
+	fstpt	-16(%rbp)									; Выталкиваем значение из вершины стека в память по адресу rbp - 16
+	addl	$1, -24(%rbp)							; Прибавляем к значению, расположенному по адресу rbp - 24 единицу
 .L2:
-	movl	-24(%rbp), %eax
-	cmpl	-20(%rbp), %eax
-	jbe	.L7
-	fldt	-16(%rbp)
-	fldt	.LC2(%rip)
-	fmulp	%st, %st(1)
-	fstpt	-16(%rbp)
-	pushq	-8(%rbp)
-	pushq	-16(%rbp)
-	leaq	.LC3(%rip), %rdi
-	movl	$0, %eax
-	call	printf@PLT
-	addq	$16, %rsp
-	movl	$0, %eax
-	leave
+	movl	-24(%rbp), %eax						; Переместить содержимое по адресу rbp - 24 в регистр eax
+	cmpl	-20(%rbp), %eax						; Сравнить значение из памяти с тем, что лежит в eax
+	jbe	.L7													; Если первый операнд МЕНЬШЕ или РАВЕН второму операнду при выполнении операции CMP, перейти к .L5
+	fldt	-16(%rbp)									; Загрузить вещественное число, расположенное по адресу rbp - 16 в стек
+	fldt	.LC2(%rip)								; Загрузить указанное вещественное число в стек
+	fmulp	%st, %st(1)								; Умножаем: st*st(2) (они при этом выталкиваются из стека). Результат помещаем в вершину стека.
+	fstpt	-16(%rbp)									; Выталкиваем значение из вершины стека в память по адресу rbp - 16
+	pushq	-8(%rbp)									; Положить в стек значение из памяти
+	pushq	-16(%rbp)									; Положить в стек значение из памяти
+	leaq	.LC3(%rip), %rdi					; Записать адрес в регистр rdi
+	movl	$0, %eax									; Записать в регистр eax 0
+	call	printf@PLT								; Вызов подпрограммы printf
+	addq	$16, %rsp									; Чистим место в стеке (увеличиваем указатель стека)
+	movl	$0, %eax									; Записать в регистр eax 0
+	leave														; Выполняет удаление из стека области локальных (динамических) переменных
 	.cfi_def_cfa 7, 8
-	ret
+	ret															; Выход из подпрограммы
 	.cfi_endproc
 .LFE5:
 	.size	main, .-main

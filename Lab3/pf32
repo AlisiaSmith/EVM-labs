@@ -1,0 +1,112 @@
+	.file	"source.c"
+	.text
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.LC4:
+	.string	"%Lf \n"
+	.section	.text.startup,"ax",@progbits
+	.p2align 4,,15
+	.globl	main
+	.type	main, @function
+main:
+.LFB41:
+	.cfi_startproc													;
+	leal	4(%esp), %ecx											; Перемещает адрес esp + 4 в регистр ecx
+	.cfi_def_cfa 1, 0												;
+	andl	$-16, %esp												; Вычесть 16 из esp
+	pushl	-4(%ecx)													; поместить значение из ecx - 4 в стек
+	pushl	%ebp															;	Сохраняем указатель кадра вызвавшей программы (помещаем в стек значение в регистре ebp)
+	.cfi_escape 0x10,0x5,0x2,0x75,0					;
+	movl	%esp, %ebp												; -ормируем указатель нашего кадра:
+																					; пишем в регистр ebp значение регистра esp
+																					; (это будет начало кадра для локальных переменных)
+
+	pushl	%ebx															; Помещаем значение из регистра ebx в стек
+	pushl	%ecx															; Помещаем значение из регистра ecx в стек
+	.cfi_escape 0xf,0x3,0x75,0x78,0x6				;
+	.cfi_escape 0x10,0x3,0x2,0x75,0x7c
+	call	__x86.get_pc_thunk.bx
+	addl	$_GLOBAL_OFFSET_TABLE_, %ebx			; Сложениие ebx с глобальной переменной
+	subl	$20, %esp													;
+	movl	4(%ecx), %eax											;
+	pushl	$10																;
+	pushl	$0																;
+	pushl	4(%eax)														;
+	call	strtol@PLT												;
+	fldz																		;
+	addl	$16, %esp													;
+	xorl	%edx, %edx												; ??
+	fld1																		;
+	.p2align 4,,10
+	.p2align 3
+.L2:
+	movl	%edx, -16(%ebp)										;
+	movl	$0, -12(%ebp)											;
+	testb	$1, %dl														; ??
+	fildq	-16(%ebp)													;
+	fadd	%st(0), %st												;
+	jne	.L3																	;
+	fld1																		;
+	addl	$1, %edx													;
+	cmpl	%eax, %edx												;
+	fadd	%st, %st(1)												;
+	fdivp	%st, %st(1)												;
+	faddp	%st, %st(2)												;
+	jbe	.L2																	;
+	fstp	%st(0)														;
+.L5:
+	fmuls	.LC3@GOTOFF(%ebx)									;
+	leal	.LC4@GOTOFF(%ebx), %eax						;
+	subl	$24, %esp													;
+	fstpt	(%esp)														;
+	pushl	%eax															;
+	pushl	$1																;
+	call	__printf_chk@PLT									;
+	addl	$32, %esp													;
+	leal	-8(%ebp), %esp										;
+	xorl	%eax, %eax												;
+	popl	%ecx															;
+	.cfi_remember_state
+	.cfi_restore 1
+	.cfi_def_cfa 1, 0
+	popl	%ebx
+	.cfi_restore 3
+	popl	%ebp
+	.cfi_restore 5
+	leal	-4(%ecx), %esp										;
+	.cfi_def_cfa 4, 4
+	ret																			;
+	.p2align 4,,10
+	.p2align 3
+.L3:
+	.cfi_restore_state
+	fadd	%st(1), %st												;
+	addl	$1, %edx													;
+	cmpl	%eax, %edx												;
+	fdivrs	.LC2@GOTOFF(%ebx)								;
+	faddp	%st, %st(2)												;
+	jbe	.L2																	;
+	fstp	%st(0)														;
+	jmp	.L5																	;
+	.cfi_endproc
+.LFE41:
+	.size	main, .-main
+	.section	.rodata.cst4,"aM",@progbits,4
+	.align 4
+.LC2:
+	.long	3212836864
+	.align 4
+.LC3:
+	.long	1082130432
+	.section	.text.__x86.get_pc_thunk.bx,"axG",@progbits,__x86.get_pc_thunk.bx,comdat
+	.globl	__x86.get_pc_thunk.bx
+	.hidden	__x86.get_pc_thunk.bx
+	.type	__x86.get_pc_thunk.bx, @function
+__x86.get_pc_thunk.bx:
+.LFB42:
+	.cfi_startproc
+	movl	(%esp), %ebx											; переместить esp в регистр ebx
+	ret																			; Выход из подпрограммы
+	.cfi_endproc
+.LFE42:
+	.ident	"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0"
+	.section	.note.GNU-stack,"",@progbits

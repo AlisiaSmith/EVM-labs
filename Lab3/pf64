@@ -1,0 +1,83 @@
+	.file	"source.c"
+	.text
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.LC3:
+	.string	"%Lf \n"
+	.section	.text.startup,"ax",@progbits
+	.p2align 4,,15
+	.globl	main
+	.type	main, @function
+main:
+.LFB41:
+	.cfi_startproc
+	subq	$24, %rsp															; Вычесть из rsp 24
+	.cfi_def_cfa_offset 32
+	movq	8(%rsi), %rdi													; Присвоить регистру rdi значение по адресу rsi + 8
+	movl	$10, %edx															; Положить в регистр edx 10
+	xorl	%esi, %esi														; Побитовое исключающее ИЛИ, то же, что и movl $0 %esi
+	call	strtol@PLT														; Вызвать подпрограмму strol
+	movsd	.LC1(%rip), %xmm1											; Поместить в xmm1 значение по указаному адресу
+	fldz																				; Загрузить нуль в стек
+	movsd	.LC2(%rip), %xmm2											; Поместить в xmm2 значение по указаному адресу
+	xorl	%ecx, %ecx														; Побитовое исключающее ИЛИ, то же, что и movl $0 %ecx
+	.p2align 4,,10
+	.p2align 3
+.L2:
+	pxor	%xmm0, %xmm0													; Логическое ИСКЛЮЧАЮЩЕЕ ИЛИ над 64 битами, movl $0 %xmm0
+	movl	%ecx, %edx														; Присвоить регистру edx значение из ecx
+	testb	$1, %cl																; огическое И между всеми битами двух операндов (устанавливает флаги)
+	cvtsi2ssq	%rdx, %xmm0												; Скалярное преобразование знакового DWord в Float с перемещением
+	cvtss2sd	%xmm0, %xmm0											; Преобразование скалярного Float в Double
+	addsd	%xmm0, %xmm0													; Увеличиваем значение в регистре xmm0 в два раза
+	addsd	%xmm1, %xmm0													; Прибавляем к значению в регистре xmm0 значение из xmm1
+	jne	.L3																			; Еси флаг = 0 перейти к .L3
+	movapd	%xmm1, %xmm3												; Перемещение упакованных выровненных Double
+	addl	$1, %ecx															; Добавить к ecx 1
+	cmpl	%eax, %ecx														; Сравнить содержимое eax и ecx
+	divsd	%xmm0, %xmm3													; Делим содержимое регистра xmm0 на значение из xmm3
+	movsd	%xmm3, 8(%rsp)												; Перемещаем значение из регистра xmm3 в rsp + 8
+	faddl	8(%rsp)																; Прибавить к значению на верхушке стека значение из rsp + 8
+	jbe	.L2																			; Если первый операнд МЕНЬШЕ или РАВЕН второму операнду при выполнении операции CMP, перейти к .L2
+.L7:
+	fmuls	.LC4(%rip)														; умножаем значение на верхушке стека на значение по адресу
+	leaq	.LC3(%rip), %rsi											; Записать адрес в регистр rsi
+	subq	$16, %rsp															; Вычетаем 16 из rsp
+	.cfi_def_cfa_offset 48
+	movl	$1, %edi															; Помещаем в edi 1
+	xorl	%eax, %eax														; Побитовое исключающее ИЛИ, то же, что и movl $0 %eax
+	fstpt	(%rsp)																; Выталкиваем значение из вершины стека в память по адресу rsp
+	call	__printf_chk@PLT											; Вызвать подпрограмму __printf_chk
+	xorl	%eax, %eax														; Побитовое исключающее ИЛИ, то же, что и movl $0 %eax
+	addq	$40, %rsp															; Добавляем 40 к rsp
+	.cfi_def_cfa_offset 8
+	ret																					; Выход из подпрограммы
+	.p2align 4,,10
+	.p2align 3
+.L3:
+	.cfi_def_cfa_offset 32
+	movapd	%xmm2, %xmm4												; Перемещаем содерживое регистра
+	addl	$1, %ecx															; Добавить к значению регистра ecx 1
+	cmpl	%eax, %ecx														; Сравнить содержимое регистров
+	divsd	%xmm0, %xmm4													; Делим содержимое регистра xmm0 на значение из xmm4
+	movsd	%xmm4, 8(%rsp)												; Переместить значение из xmm4 в rsp + 8
+	faddl	8(%rsp)																; Прибавить к значению на верхушке стека значение из rsp + 8
+	jbe	.L2																			; Если первый операнд МЕНЬШЕ или РАВЕН второму операнду при выполнении операции CMP, перейти к .L2
+	jmp	.L7																			; Перейти к .L7
+	.cfi_endproc
+.LFE41:
+	.size	main, .-main
+	.section	.rodata.cst8,"aM",@progbits,8
+	.align 8
+.LC1:
+	.long	0
+	.long	1072693248
+	.align 8
+.LC2:
+	.long	0
+	.long	-1074790400
+	.section	.rodata.cst4,"aM",@progbits,4
+	.align 4
+.LC4:
+	.long	1082130432
+	.ident	"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0"
+	.section	.note.GNU-stack,"",@progbits
