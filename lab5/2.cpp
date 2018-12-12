@@ -10,6 +10,9 @@ using namespace std;
 
 int main(int argc,char *argv[])
 { 
+
+cout << "hello" << endl;
+
 int y;int x;
 int counter=0;
 IplImage *frame;
@@ -17,6 +20,8 @@ IplImage *image;
 IplImage *dst = 0;
 IplImage *dst2= 0;
 struct timespec point1, point2, point3,point4,point5,point6;
+
+cout << "world" << endl;
 
  namedWindow("test", WINDOW_NORMAL);
 // namedWindow("image", WINDOW_NORMAL);
@@ -27,6 +32,7 @@ struct timespec point1, point2, point3,point4,point5,point6;
 CvCapture *capture = cvCreateCameraCapture(0);
 if (!capture) return 0;
 
+
  clock_gettime(CLOCK_MONOTONIC_RAW, &point1);
 while(1) {
 
@@ -34,6 +40,8 @@ while(1) {
 //указатель на дескриптор растрового изображения, которое будет содержать один кадр из потока видеоданных
     frame = cvQueryFrame(capture);
     if(!frame) break;
+
+cout << "lovely" << endl;
 
 clock_gettime(CLOCK_MONOTONIC_RAW, &point3);
     image = cvCloneImage(frame);
@@ -62,6 +70,9 @@ cvShowImage("image",dst2);
      clock_gettime(CLOCK_MONOTONIC_RAW, &point5);
 //cvShowImage("image", dst);
 counter++;
+
+cout << "friend" << endl;
+
 char c = cvWaitKey(33);
 if(c == 27) break;
 }
@@ -69,6 +80,8 @@ if(c == 27) break;
 
 //удаление потока ввода видеоданных, освобождение  занятых  им  ресурсов, а  также  удаление  окна,  в  которое 
 //выводились кадры потока видеоданных
+
+cout << "!" << endl;
 
 cvSaveImage("Image3.png", dst2,0);
 cvSaveImage("Image.png", image,0);
