@@ -42,15 +42,16 @@ if(c == 27) break;
  clock_gettime(CLOCK_MONOTONIC_RAW, &point6);
 
 //удаление потока ввода видеоданных, освобождение  занятых  им  ресурсов, а  также  удаление  окна,  в  которое выводились кадры потока видеоданных
-cvSaveImage("Image.png", frame,0);
+cvSaveImage("Image.png", frame, 0);
 cvReleaseCapture(&capture);
 cvDestroyWindow("test");
 cvDestroyWindow("image2");
 
 std::ofstream fout("output.txt");
-fout <<(point2.tv_sec-point3.tv_sec)<<"  "<<0.000000001*(point3.tv_nsec-point2.tv_nsec)<<endl;  //захват кадра
-fout <<(point4.tv_sec-point3.tv_sec)<<" "<<0.000000001*(point5.tv_nsec-point4.tv_nsec)<<endl;   //вывод кадра
-fout <<(point1.tv_sec-point6.tv_sec)<<"  "<<0.000000001*(point6.tv_nsec-point2.tv_nsec)<<endl;  // общее время
+fout <<(point3.tv_sec-point2.tv_sec)<<"  "<<0.000000001*(point3.tv_nsec-point2.tv_nsec)<<endl;  //захват кадра
+fout <<(point4.tv_sec-point3.tv_sec)<<" "<<0.000000001*(point4.tv_nsec-point3.tv_nsec)<<endl;   //обработка кадра
+fout <<(point5.tv_sec-point4.tv_sec)<<"  "<<0.000000001*(point5.tv_nsec-point4.tv_nsec)<<endl;   //вывод кадра
+fout <<(point5.tv_sec-point2.tv_sec)<<"  "<<0.000000001*(point5.tv_nsec-point2.tv_nsec)<<endl;  // общее время
  fout.close();
 return 0;
 }
