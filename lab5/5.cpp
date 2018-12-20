@@ -1,58 +1,88 @@
 #include <opencv2/highgui/highgui.hpp>
-#include "opencv2/opencv.hpp"
-#include <time.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc/imgproc_c.h>
 #include <stdio.h>
-#include <fstream>
+#include <iostream>
+#include <time.h>
 
 using namespace std;
- using namespace cv;
 
 int main(int argc,char *argv[])
-{
-int y;int x;
-int counter=0;
-IplImage *frame;
-struct timespec point1, point2, point3,point4,point5,point6;
+{ 
+        clock_t time;
+        clock_t time_input;
+        clock_t time_transformations;
+        clock_t time_show;
+        
+        clock_t counter_input = 0;
+        clock_t counter_transformations = 0;
+        clock_t counter_show = 0;
+        double counter = 0;
 
- namedWindow("test", WINDOW_NORMAL);
+    CvCapture *capture = cvCreateCameraCapture(0);
+    if (!capture) return 0;     
+        time = clock();
+        
+    while(1)
+   {
+            time_input = clock();
+        IplImage *frame = cvQueryFrame(capture);
+                time_input = clock() - time_input;
+                counter_input+=time_input;
 
-//Создается  поток  ввода  видеоданных  с  первой  камеры  (нумерация начинается  с  нуля). Результат
-// операции  – указатель  на  дескриптор обрабатываемого потока видеоданных.
-CvCapture *capture = cvCreateCameraCapture(0);
-if (!capture) return 0;
 
- clock_gettime(CLOCK_MONOTONIC_RAW, &point1);
-while(1) {
- clock_gettime(CLOCK_MONOTONIC_RAW, &point2);
-//указатель на дескриптор растрового изображения, которое будет содержать один кадр из потока видеоданных
-frame = cvQueryFrame(capture);
-if(!frame) break;
+        if(!frame) break;
 
-clock_gettime(CLOCK_MONOTONIC_RAW, &point3);
+                IplImage *image = cvCloneImage(frame);
 
- clock_gettime(CLOCK_MONOTONIC_RAW, &point4);
-   
-// Текущий  кадр выводится  в  окно  с  именем  test(при  первом  вызове создается окно с таким именем)
-cvShowImage("image", frame); 
- clock_gettime(CLOCK_MONOTONIC_RAW, &point5);
-counter++;
-char c = cvWaitKey(33);
-if(c == 27) break;
-}
- clock_gettime(CLOCK_MONOTONIC_RAW, &point6);
+                time_transformations = clock();
+                //сглаживание
+               cvSmooth(frame,image,CV_BLUR,10,10);
 
-//удаление потока ввода видеоданных, освобождение  занятых  им  ресурсов, а  также  удаление  окна,  в  которое выводились кадры потока видеоданных
-cvSaveImage("Image.png", frame, 0);
-cvReleaseCapture(&capture);
-cvDestroyWindow("test");
-cvDestroyWindow("image2");
+                //обнуление синего и красного  каналов
+                //for (int y=0; y<image->height; y++) 
+                //{
+                //        uchar *ptr = (uchar*)(image->imageData + y*image->widthStep);
+                //        for (int x=0; x<image->width; x++) 
+                //        {
+                //                ptr[3*x] = 0;           // синий
+                //                //ptr[3*x+1] = 0;       // зеленый
+                //                ptr[3*x+2] = 0; // красный
+                //        }
+                //}
 
-std::ofstream fout("output.txt");
-fout <<(point3.tv_sec-point2.tv_sec)<<"  "<<0.000000001*(point3.tv_nsec-point2.tv_nsec)<<endl;  //захват кадра
-fout <<(point4.tv_sec-point3.tv_sec)<<" "<<0.000000001*(point4.tv_nsec-point3.tv_nsec)<<endl;   //обработка кадра
-fout <<(point5.tv_sec-point4.tv_sec)<<"  "<<0.000000001*(point5.tv_nsec-point4.tv_nsec)<<endl;   //вывод кадра
-fout <<(point5.tv_sec-point2.tv_sec)<<"  "<<0.000000001*(point5.tv_nsec-point2.tv_nsec)<<endl;  // общее время
- fout.close();
-return 0;
+                //уменьшение изображения по ширине и высоте
+                image->width = (image->width * 2) / 3;
+                image->height = (image->height * 2) / 3;
+                time_transformations = clock() - time_transformations;
+                counter_transformations+=time_transformations;
+
+                time_show = clock();
+                cvShowImage("frames",image);
+                time_show = clock() - time_show;
+                counter_show+=time_show;
+
+        //cvShowImage("test", frame);
+
+                counter++;
+
+        char c = cvWaitKey(33);
+        if(c == 27) break;
+    }
+        time = clock() - time;
+
+        double frame_per_second = counter / (((double)time/CLOCKS_PER_SEC));
+        double time_input0 = ((double)counter_input/CLOCKS_PER_SEC) / counter;
+        double time_transformations0 = ((double)counter_transformations/CLOCKS_PER_SEC) / counter;
+        double time_show0 = ((double)counter_show/CLOCKS_PER_SEC) / counter;
+        double full_time = time_input0 + time_transformations0 + time_show0;
+
+        cout << "Frame per second: " << frame_per_second << endl;
+        cout << "Time for input: " << time_input0 / full_time * 100 << "%" << endl;
+        cout << "Time for transformations: " << time_transformations0 / full_time * 100 << "%" << endl;
+        cout << "Time for show: " << time_show0 / full_time * 100 << "%" << endl;
+
+    cvReleaseCapture(&capture);
+    cvDestroyWindow("frames");
 }
 
