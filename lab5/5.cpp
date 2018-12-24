@@ -69,7 +69,7 @@ int main(int argc,char *argv[])
         char c = cvWaitKey(33);
         if(c == 27) break;
     }
-        time = clock() - time;
+        time = clock() - time - counter * 33;
 
         double frame_per_second = counter / (((double)time/CLOCKS_PER_SEC));
         double time_input0 = ((double)counter_input/CLOCKS_PER_SEC) / counter;

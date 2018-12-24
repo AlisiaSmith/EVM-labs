@@ -73,9 +73,9 @@ void random(int *arr, int N) {
 
 unsigned long long timer(int *arr, int N, int K) {
     union ticks {
-        unsigned long long t64;
+        ulong t64;
         struct s32 {
-            long th, tl;
+           uint th, tl;
         } t32;
     } start, end;
 
