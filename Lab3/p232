@@ -10,66 +10,68 @@
 main:
 .LFB41:
 	.cfi_startproc
-	leal	4(%esp), %ecx
+	leal	4(%esp), %ecx        ; Перемещает адрес esp + 4 в регистр ecx
 	.cfi_def_cfa 1, 0
-	andl	$-16, %esp
-	pushl	-4(%ecx)
-	pushl	%ebp
+	andl	$-16, %esp           ; Вычесть 16 из esp
+	pushl	-4(%ecx)             ; поместить значение из ecx - 4 в стек
+	pushl	%ebp                 ; Сохраняем указатель кадра вызвавшей программы (помещаем в стек значение в регистре ebp)
 	.cfi_escape 0x10,0x5,0x2,0x75,0
-	movl	%esp, %ebp
-	pushl	%ebx
-	pushl	%ecx
+	movl	%esp, %ebp           ; -ормируем указатель нашего кадра:
+														 ; пишем в регистр ebp значение регистра esp
+											 			 ; (это будет начало кадра для локальных переменных)
+	pushl	%ebx                 ; Помещаем значение из регистра ebx в стек
+	pushl	%ecx                 ; Помещаем значение из регистра ecx в стек
 	.cfi_escape 0xf,0x3,0x75,0x78,0x6
 	.cfi_escape 0x10,0x3,0x2,0x75,0x7c
 	call	__x86.get_pc_thunk.bx
-	addl	$_GLOBAL_OFFSET_TABLE_, %ebx
-	subl	$20, %esp
-	movl	4(%ecx), %eax
-	pushl	$10
-	pushl	$0
-	pushl	4(%eax)
-	call	strtol@PLT
-	fldz
-	addl	$16, %esp
-	xorl	%edx, %edx
+	addl	$_GLOBAL_OFFSET_TABLE_, %ebx  ; Сложениие ebx с глобальной переменной
+	subl	$20, %esp            ; Вычесть 20 из значения регистре esp
+	movl	4(%ecx), %eax        ; Перемещает значение из eсx + 4 в регистр eax
+	pushl	$10                  ; Положить в стек 10
+	pushl	$0									 ; Положить в стек 0
+	pushl	4(%eax)              ; Положить в стек значение по адресу eax + 4
+	call	strtol@PLT           ; Вызов подпрограммы
+	fldz                       ; Загрузить в стек ноль
+	addl	$16, %esp            ; Чистим место в стеке (увеличиваем указатель стека)
+	xorl	%edx, %edx           ; Побитовое исключающее ИЛИ, то же, что и movl $0 %edx
 	.p2align 4,,10
 	.p2align 3
 .L3:
-	testb	$1, %dl
-	fld1
-	je	.L2
-	fchs
+	testb	$1, %dl              ; огическое И между всеми битами двух операндов (устанавливает флаги)
+	fld1                       ; Загрузить 0 в ST(0)
+	je	.L2                    ; Выполняет короткий переход, если первый операнд РАВЕН второму операнду при выполнении операции сравнения с помощью команды CMP
+	fchs                       ; ST(0) = -ST(0)
 .L2:
-	movl	%edx, -24(%ebp)
-	movl	$0, -20(%ebp)
-	addl	$1, %edx
-	fildq	-24(%ebp)
-	cmpl	%edx, %eax
-	fadd	%st(0), %st
-	fadds	.LC1@GOTOFF(%ebx)
-	fdivrp	%st, %st(1)
-	faddp	%st, %st(1)
-	jnb	.L3
-	fmuls	.LC3@GOTOFF(%ebx)
-	leal	.LC4@GOTOFF(%ebx), %eax
-	subl	$24, %esp
-	fstpt	(%esp)
-	pushl	%eax
-	pushl	$1
-	call	__printf_chk@PLT
-	addl	$32, %esp
-	leal	-8(%ebp), %esp
-	xorl	%eax, %eax
-	popl	%ecx
+	movl	%edx, -24(%ebp)      ; Переместить значение из регистра edx в память по адресу ebp - 24
+	movl	$0, -20(%ebp)        ; Присвоить переменной по адресу ebp - 20 значение нуль
+	addl	$1, %edx             ; Прибавить к edx 1
+	fildq	-24(%ebp)            ; Загрузить quad-целое в вершину стека
+	cmpl	%edx, %eax           ; Сравнить содержимое регистров
+	fadd	%st(0), %st          ; Увелчиваем значение в вершине стека в 2 раза
+	fadds	.LC1@GOTOFF(%ebx)    ; Прибавить к значению на вершине стека значение по адресу
+	fdivrp	%st, %st(1)        ; Делим значение из st(1) на значение из st(0) и помещаем в st(0)
+	faddp	%st, %st(1)          ; Складываем элементы стека и сохраняем в st(1)
+	jnb	.L3                    ; Команда "переход, если бит не установлен" выполняет вествление по адресу, если указанный бит равен "нулю"
+	fmuls	.LC3@GOTOFF(%ebx)    ; умножаем значение на верхушке стека на значение по адрес
+	leal	.LC4@GOTOFF(%ebx), %eax   ; Записать адрес
+	subl	$24, %esp            ; Отнять от значения esp 24
+	fstpt	(%esp)               ; Выталкиваем значение из вершины стека в память по адресу
+	pushl	%eax                 ; Положит в стек eax
+	pushl	$1                   ; Положить 1 в стек
+	call	__printf_chk@PLT     ; Вызов подпрограммы
+	addl	$32, %esp            ; Прибвить к esp 32
+	leal	-8(%ebp), %esp       ; Записать адрес регистра ebp - 8 в регистр esp
+	xorl	%eax, %eax           ; Побитовое исключающее ИЛИ, то же, что и movl $0 %eax
+	popl	%ecx                 ; Вынуть значение из стека в ecx
 	.cfi_restore 1
 	.cfi_def_cfa 1, 0
-	popl	%ebx
+	popl	%ebx                 ; Вынуть значение из стека в ebx 
 	.cfi_restore 3
-	popl	%ebp
+	popl	%ebp                 ; Вынуть значение из стека в ebp
 	.cfi_restore 5
-	leal	-4(%ecx), %esp
+	leal	-4(%ecx), %esp       ; Записать адрес регистра ecx - 4 в регистр esp
 	.cfi_def_cfa 4, 4
-	ret
+	ret                        ; Выход из подпрограммы
 	.cfi_endproc
 .LFE41:
 	.size	main, .-main
@@ -87,8 +89,8 @@ main:
 __x86.get_pc_thunk.bx:
 .LFB42:
 	.cfi_startproc
-	movl	(%esp), %ebx
-	ret
+	movl	(%esp), %ebx         ; Записать значение по адресу esp в регистр ebx
+	ret                        ; Выход из подпрограммы
 	.cfi_endproc
 .LFE42:
 	.ident	"GCC: (Ubuntu 7.3.0-27ubuntu1~18.04) 7.3.0"

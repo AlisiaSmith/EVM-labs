@@ -9,62 +9,62 @@
 	.type	main, @function
 main:
 .LFB41:
-	.cfi_startproc													;
+	.cfi_startproc
 	leal	4(%esp), %ecx											; Перемещает адрес esp + 4 в регистр ecx
-	.cfi_def_cfa 1, 0												;
+	.cfi_def_cfa 1, 0
 	andl	$-16, %esp												; Вычесть 16 из esp
 	pushl	-4(%ecx)													; поместить значение из ecx - 4 в стек
 	pushl	%ebp															;	Сохраняем указатель кадра вызвавшей программы (помещаем в стек значение в регистре ebp)
-	.cfi_escape 0x10,0x5,0x2,0x75,0					;
+	.cfi_escape 0x10,0x5,0x2,0x75,0
 	movl	%esp, %ebp												; -ормируем указатель нашего кадра:
 																					; пишем в регистр ebp значение регистра esp
 																					; (это будет начало кадра для локальных переменных)
 
 	pushl	%ebx															; Помещаем значение из регистра ebx в стек
 	pushl	%ecx															; Помещаем значение из регистра ecx в стек
-	.cfi_escape 0xf,0x3,0x75,0x78,0x6				;
+	.cfi_escape 0xf,0x3,0x75,0x78,0x6
 	.cfi_escape 0x10,0x3,0x2,0x75,0x7c
 	call	__x86.get_pc_thunk.bx
 	addl	$_GLOBAL_OFFSET_TABLE_, %ebx			; Сложениие ebx с глобальной переменной
-	subl	$20, %esp													;
-	movl	4(%ecx), %eax											;
-	pushl	$10																;
-	pushl	$0																;
-	pushl	4(%eax)														;
-	call	strtol@PLT												;
-	fldz																		;
-	addl	$16, %esp													;
-	xorl	%edx, %edx												; ??
-	fld1																		;
+	subl	$20, %esp													;	Вычесть 20 из значения регистре esp
+	movl	4(%ecx), %eax											; Перемещает значение из eсx + 4 в регистр eax
+	pushl	$10																; Положить в стек 10
+	pushl	$0																; Положить в стек 0
+	pushl	4(%eax)														; Положить в стек значение из eax + 4
+	call	strtol@PLT												; Вызов подпрограммы strtol
+	fldz																		; Загрузить в стек ноль
+	addl	$16, %esp													; Чистим место в стеке (увеличиваем указатель стека)
+	xorl	%edx, %edx												; Побитовое исключающее ИЛИ, то же, что и movl $0 %edx
+	fld1																		; Загрузить 0 в ST(0)
 	.p2align 4,,10
 	.p2align 3
 .L2:
-	movl	%edx, -16(%ebp)										;
-	movl	$0, -12(%ebp)											;
-	testb	$1, %dl														; ??
-	fildq	-16(%ebp)													;
-	fadd	%st(0), %st												;
-	jne	.L3																	;
-	fld1																		;
-	addl	$1, %edx													;
-	cmpl	%eax, %edx												;
-	fadd	%st, %st(1)												;
-	fdivp	%st, %st(1)												;
-	faddp	%st, %st(2)												;
-	jbe	.L2																	;
-	fstp	%st(0)														;
+	movl	%edx, -16(%ebp)										; Помещаем значение из регистра edx в регистр ebp - 16
+	movl	$0, -12(%ebp)											; Помещаем нуль в регистр ebp - 12
+	testb	$1, %dl														; огическое И между всеми битами двух операндов (устанавливает флаги)
+	fildq	-16(%ebp)													; ??
+	fadd	%st(0), %st												; Увелчиваем значение в вершине стека в 2 раза
+	jne	.L3																	; Еси флаг = 0 перейти к .L3
+	fld1																		; Загрузить 0 в ST(0)
+	addl	$1, %edx													; Прибавить 1 к edх
+	cmpl	%eax, %edx												; Сравнить содержимое регистров
+	fadd	%st, %st(1)												; Складываем два верхних элемента стека и сохраняем в st(1)
+	fdivp	%st, %st(1)												; Складываем элементы стека и сохраняем в st(1)
+	faddp	%st, %st(2)												; Складываем элементы стека и сохраняем в st(2)
+	jbe	.L2																	; Перейти к L2
+	fstp	%st(0)														; Перезаписываем вершину в стеке
 .L5:
-	fmuls	.LC3@GOTOFF(%ebx)									;
-	leal	.LC4@GOTOFF(%ebx), %eax						;
-	subl	$24, %esp													;
-	fstpt	(%esp)														;
-	pushl	%eax															;
-	pushl	$1																;
-	call	__printf_chk@PLT									;
-	addl	$32, %esp													;
-	leal	-8(%ebp), %esp										;
-	xorl	%eax, %eax												;
-	popl	%ecx															;
+	fmuls	.LC3@GOTOFF(%ebx)									; умножаем значение на верхушке стека на значение по адресу
+	leal	.LC4@GOTOFF(%ebx), %eax						; Поместить адрес в регистр eax
+	subl	$24, %esp													; Вычитаем из esp 24
+	fstpt	(%esp)														; Выталкиваем значение из вершины стека в память по адресу
+	pushl	%eax															; Положить в стек значение из eax
+	pushl	$1																; Положить в стек 1
+	call	__printf_chk@PLT									; Вызов подпрограммы
+	addl	$32, %esp													; Чистим место в стеке (увеличиваем указатель стека)
+	leal	-8(%ebp), %esp										; Записать в регистр esp адрес ebp - 8
+	xorl	%eax, %eax												; Побитовое исключающее ИЛИ, то же, что и movl $0 %eax
+	popl	%ecx															; Вынуть из стека по регистр ecx
 	.cfi_remember_state
 	.cfi_restore 1
 	.cfi_def_cfa 1, 0
@@ -72,21 +72,21 @@ main:
 	.cfi_restore 3
 	popl	%ebp
 	.cfi_restore 5
-	leal	-4(%ecx), %esp										;
+	leal	-4(%ecx), %esp										; Записать в регистр esp адрес ecx - 4
 	.cfi_def_cfa 4, 4
-	ret																			;
+	ret																			; Выход из подпрограммы
 	.p2align 4,,10
 	.p2align 3
 .L3:
 	.cfi_restore_state
-	fadd	%st(1), %st												;
-	addl	$1, %edx													;
-	cmpl	%eax, %edx												;
-	fdivrs	.LC2@GOTOFF(%ebx)								;
-	faddp	%st, %st(2)												;
-	jbe	.L2																	;
-	fstp	%st(0)														;
-	jmp	.L5																	;
+	fadd	%st(1), %st												; Складываем два верхних элемента стека и сокраняем в st
+	addl	$1, %edx													; Прибавить 1 к edх
+	cmpl	%eax, %edx												; Сравнить значения в двух регистрах
+	fdivrs	.LC2@GOTOFF(%ebx)								; Деление с сохранением результата в стек
+	faddp	%st, %st(2)												; Складываем элементы стека и сокраняем в st(2)
+	jbe	.L2																	; Если первый операнд МЕНЬШЕ иfstpв или РАВЕН второму операнду при выполнении операции CMP, перейти к .L2
+	fstp	%st(0)														; Перезаписываем вершину в стеке
+	jmp	.L5																	; Перейти к метке L5
 	.cfi_endproc
 .LFE41:
 	.size	main, .-main
